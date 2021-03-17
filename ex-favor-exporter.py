@@ -105,7 +105,7 @@ for i in range(1,pagenum):
 for url in urlList:
     getfavor(url)
 
-with open("list.json","w") as f:
-    f.write(json.dumps(jsondata))
+with open("list.json","w",encoding="utf-8") as f:
+    f.write(json.dumps(jsondata,ensure_ascii=False,sort_keys=True, indent=4, separators=(',', ':')))
 
 print('task end...\n')
