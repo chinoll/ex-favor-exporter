@@ -4,14 +4,13 @@ import re
 import os
 import random
 from concurrent.futures import ThreadPoolExecutor
+import threading
+import json
+import time
 # 这里配置你的cookies
 # 有啥填啥，必填 {"ipb_member_id":"xxx","ipb_pass_hash":"xxx"}
 cookies={"ipb_member_id":"xxx","ipb_pass_hash":"xxx"}
-# 这里指定图片存放目录，默认就好了
-desDir=".\\ex-favor\\"
-if not os.path.exists(desDir):
-    os.makedirs('ex-favor')
-
+#proxies = {"socks5":"socks5://127.0.0.1:1080"}
 
 USER_AGENTS = [
     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
@@ -32,6 +31,14 @@ USER_AGENTS = [
     "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
 ]
 
+class link:
+    def __init__(self,soup):
+        self.title = iter(soup.find_all(attrs={'class':'glthumb'}))
+        self.link = iter(soup.find_all(attrs={'class':'gl3c glname'}))
+    def __iter__(self):
+        return self
+    def __next__(self):
+        return (next(self.title),next(self.link))
 
 def validateTitle(title):
     rstr = r"[\/\\\:\*\?\"\<\>\|]"
@@ -50,23 +57,35 @@ def saveImage(imgUrl,imgName):
     except IOError:
         print("IO Error: "+imgUrl)
         return
-
+jsondata = []
 def getfavor(curUrl):
     fakeua={}
     fakeua['user-agent']=random.choice(USER_AGENTS)
-    soup=bs(rq.get(curUrl,cookies=cookies,headers=fakeua).text,'html.parser')
+    soup=bs(rq.get(curUrl,cookies=cookies,headers=fakeua,proxies=proxies).text,'html.parser')
     count=0
-    for i in soup.find_all(attrs={'class':'glthumb'}):
+    linklist = []
+    name = []
+    for i in iter(link(soup)):
         count+=1
         print(str(count)+'/'+'50')
-        imgUrl=i.div.img.attrs['src']
-        imgName=i.div.img.attrs['title']
-        try:
-            imgUrl=i.div.img.attrs['data-src']
-            saveImage(imgUrl,imgName)
-        except KeyError:
-            imgUrl=i.div.img.attrs['src']
-            saveImage(imgUrl,imgName)
+        Name=i[0].div.img.attrs['title']
+        Link=i[1].a.attrs["href"]
+        data = {"method":"gdata","gidlist":[],"namespace":25}
+        linklist.append(Link)
+        name.append(Name)
+        if len(linklist) == 25:
+            for l in linklist:
+                l = l.split("/")
+                data["gidlist"].append([int(l[-3]),l[-2]])
+            text = rq.post("https://api.e-hentai.org/api.php",data=json.dumps(data)).text
+            #print(text)
+            text = json.loads(text)
+            for i in range(25):
+                jsondata.append({name[i]:text['gmetadata'][i]['tags']})
+            name = []
+            linklist = []
+            time.sleep(1)
+        print(Name,Link)
 
 fakeua={}
 fakeua['user-agent']=random.choice(USER_AGENTS)
@@ -83,12 +102,10 @@ urlList=['https://e-hentai.org/favorites.php']
 for i in range(1,pagenum):
     urlList.append('https://e-hentai.org/favorites.php?page='+str(i))
 
-# 此处三行表示使用大小为8的线程池并行导出
-# 如果发现没有反应（即无法创建线程），可以使用串行版本如下：
-# for url in urlList:
-#     getfavor(url)
-pool = ThreadPoolExecutor(8)
 for url in urlList:
-    pool.submit(getfavor, url)
+    getfavor(url)
 
-input('task running...\n')
+with open("list.json","w") as f:
+    f.write(json.dumps(jsondata))
+
+print('task end...\n')
