@@ -65,6 +65,7 @@ def getfavor(curUrl):
     count=0
     linklist = []
     name = []
+    #templist = []
     for i in iter(link(soup)):
         count+=1
         print(str(count)+'/'+'50')
@@ -101,11 +102,26 @@ pagenum=favornum//50+1
 urlList=['https://e-hentai.org/favorites.php']
 for i in range(1,pagenum):
     urlList.append('https://e-hentai.org/favorites.php?page='+str(i))
+if os.path.exists("settings.json"):
+    with open("settings.json","r",encoding="utf-8") as f:
+        count = json.loads(f.read())
+else:
+    count = 0
+try:
+    if os.path.exists("list.json"):
+        with open("list.json","r",encoding="utf-8") as f:
+            jsondata = json.loads(f.read())
 
-for url in urlList:
-    getfavor(url)
+    for url in urlList[count:]:
+        getfavor(url)
+        count += 1
+except:
+    pass
 
 with open("list.json","w",encoding="utf-8") as f:
     f.write(json.dumps(jsondata,ensure_ascii=False,sort_keys=True, indent=4, separators=(',', ':')))
 
-print('task end...\n')
+#保存上次同步的地方
+with open("settings.json","w",encoding="utf-8") as f:
+    f.write(json.dumps(count))
+print('task end...')
