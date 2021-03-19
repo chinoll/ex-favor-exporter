@@ -10,7 +10,10 @@ import time
 # 这里配置你的cookies
 # 有啥填啥，必填 {"ipb_member_id":"xxx","ipb_pass_hash":"xxx"}
 cookies={"ipb_member_id":"xxx","ipb_pass_hash":"xxx"}
-#proxies = {"socks5":"socks5://127.0.0.1:1080"}
+
+desDir=".\\ex-favor\\"
+if not os.path.exists(desDir):
+    os.makedirs('ex-favor')
 
 USER_AGENTS = [
     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
@@ -61,7 +64,7 @@ jsondata = []
 def getfavor(curUrl):
     fakeua={}
     fakeua['user-agent']=random.choice(USER_AGENTS)
-    soup=bs(rq.get(curUrl,cookies=cookies,headers=fakeua,proxies=proxies).text,'html.parser')
+    soup=bs(rq.get(curUrl,cookies=cookies,headers=fakeua).text,'html.parser')
     count=0
     linklist = []
     name = []
@@ -79,13 +82,24 @@ def getfavor(curUrl):
                 l = l.split("/")
                 data["gidlist"].append([int(l[-3]),l[-2]])
             text = rq.post("https://api.e-hentai.org/api.php",data=json.dumps(data)).text
-            #print(text)
             text = json.loads(text)
-            for i in range(25):
-                jsondata.append({name[i]:text['gmetadata'][i]['tags']})
+            for j in range(25):
+                if not name[j] in jsondata:
+                    jsondata[name[j]] = text['gmetadata'][j]['tags']
             name = []
             linklist = []
             time.sleep(1)
+        try:
+            imgName=i[0].div.img.attrs['title']
+            try:
+                imgUrl=i[0].div.img.attrs['data-src']
+                saveImage(imgUrl,imgName)
+            except KeyError:
+                imgUrl=i[0].div.img.attrs['src']
+                saveImage(imgUrl,imgName)
+        except:
+            print("封面下载错误")
+
         print(Name,Link)
 
 fakeua={}
@@ -97,31 +111,43 @@ except AttributeError:
 
 # 以下逻辑仅为获取收藏数，如果发现获取失败，但确认cookies配置正确，可以手动删掉以下逻辑，配置 pagenum=[你的收藏数]
 favornum=int((sp.find(attrs={'name':'favform'}).p.string.split(' ')[1]).replace(',','').replace(' ',''))
+#favornum=1614
 pagenum=favornum//50+1
 
 urlList=['https://e-hentai.org/favorites.php']
 for i in range(1,pagenum):
     urlList.append('https://e-hentai.org/favorites.php?page='+str(i))
+
+#加载配置
 if os.path.exists("settings.json"):
     with open("settings.json","r",encoding="utf-8") as f:
-        count = json.loads(f.read())
+        settings = json.loads(f.read())
+        count = settings[0]
+        cookies = settings[1]
 else:
     count = 0
-try:
-    if os.path.exists("list.json"):
-        with open("list.json","r",encoding="utf-8") as f:
-            jsondata = json.loads(f.read())
 
+#加载上次退出的地方
+if os.path.exists("dict.json"):
+    with open("dict.json","r",encoding="utf-8") as f:
+        jsondata = json.loads(f.read())
+
+try:
     for url in urlList[count:]:
         getfavor(url)
         count += 1
 except:
-    pass
+    print("在下载%d页时发生异常" % count)
+
+#转换为bot使用的格式
+with open("dict.json","w",encoding="utf-8") as f:
+    f.write(json.dumps([{key:value} for key,value in jsondata.items()],ensure_ascii=False,sort_keys=True, indent=4, separators=(',', ':')))
+
+#保存上次同步的地方
+with open("settings.json","w",encoding="utf-8") as f:
+    f.write(json.dumps([count,cookies]))
 
 with open("list.json","w",encoding="utf-8") as f:
     f.write(json.dumps(jsondata,ensure_ascii=False,sort_keys=True, indent=4, separators=(',', ':')))
 
-#保存上次同步的地方
-with open("settings.json","w",encoding="utf-8") as f:
-    f.write(json.dumps(count))
 print('task end...')
