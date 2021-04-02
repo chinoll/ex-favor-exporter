@@ -110,8 +110,8 @@ except AttributeError:
     print("请检查cookie是否配置正确、ip是否被ban")
 
 # 以下逻辑仅为获取收藏数，如果发现获取失败，但确认cookies配置正确，可以手动删掉以下逻辑，配置 pagenum=[你的收藏数]
-favornum=int((sp.find(attrs={'name':'favform'}).p.string.split(' ')[1]).replace(',','').replace(' ',''))
-#favornum=1614
+#favornum=int((sp.find(attrs={'name':'favform'}).p.string.split(' ')[1]).replace(',','').replace(' ',''))
+favornum=1643
 pagenum=favornum//50+1
 
 urlList=['https://e-hentai.org/favorites.php']
@@ -136,7 +136,8 @@ try:
     for url in urlList[count:]:
         getfavor(url)
         count += 1
-except:
+except Exception as e:
+    print(e)
     print("在下载%d页时发生异常" % count)
 
 #转换为bot使用的格式
