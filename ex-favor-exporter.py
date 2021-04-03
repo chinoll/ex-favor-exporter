@@ -68,7 +68,6 @@ def getfavor(curUrl):
     count=0
     linklist = []
     name = []
-    #templist = []
     for i in iter(link(soup)):
         count+=1
         print(str(count)+'/'+'50')
@@ -86,6 +85,14 @@ def getfavor(curUrl):
             for j in range(25):
                 if not name[j] in jsondata:
                     jsondata[name[j]] = text['gmetadata'][j]['tags']
+                
+                #清洗tag
+                #把female和male之外的标签全部清洗掉
+                for tag in jsondata[name[j]]:
+                    if "female" in tag or "male" in tag:
+                        continue
+                    jsondata[name[j]].remove(tag)
+
             name = []
             linklist = []
             time.sleep(1)
@@ -128,12 +135,18 @@ else:
     count = 0
 
 #加载上次退出的地方
-if os.path.exists("dict.json"):
-    with open("dict.json","r",encoding="utf-8") as f:
-        jsondata = json.loads(f.read())
+if os.path.exists("list.json"):
+    with open("list.json","r",encoding="utf-8") as f:
+        try:
+            jsondata = json.loads(f.read())
+        except:
+            jsondata = []
+else:
+    jsondata = []
 
 try:
     for url in urlList[count:]:
+        print("==========正在下载%d页==========" % (count))
         getfavor(url)
         count += 1
 except Exception as e:
