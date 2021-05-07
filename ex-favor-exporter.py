@@ -110,7 +110,7 @@ def getfavor(curUrl):
 
 fakeua={}
 fakeua['user-agent']=random.choice(USER_AGENTS)
-#cookies = {"ipb_member_id":os.environ["ipb_member_id"],"ipb_pass_hash":os.environ["ipb_pass_hash"]}
+cookies = {"ipb_member_id":os.environ["ipb_member_id"],"ipb_pass_hash":os.environ["ipb_pass_hash"]}
 try:
     sp=bs(rq.get('https://e-hentai.org/favorites.php',cookies=cookies,headers=fakeua).text,'html.parser')
 except AttributeError:
