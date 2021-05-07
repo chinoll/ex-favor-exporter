@@ -53,7 +53,7 @@ jobs:
           python ex-favor-exporter.py
           python tag_make.py
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          ssh -T git@github.com
           git clone https://github.com/hentaiqq/hentai.git
           cp list.json dict.json tags.json hentai
-          cd hentai && git remote set-url origin git@github.com:hentaiqq/hentai.git && git add list.json dict.json tags.json && git commit -m "update" && git push origin master --force
+          cd hentai && git remote set-url origin git@github.com:hentaiqq/hentai.git && ssh -T git@github.com
+          cd hentai &&  && git add list.json dict.json tags.json && git commit -m "update" && git push origin master --force
