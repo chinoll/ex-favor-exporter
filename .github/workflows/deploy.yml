@@ -44,6 +44,7 @@ jobs:
           git config --global user.name $GIT_USER
           git config --global user.email $GIT_EMAIL
           git clone https://github.com/hentaiqq/hentai
+          pip install bs4
       - name: update database
         run: |
           python ex-favor-exporter.py
