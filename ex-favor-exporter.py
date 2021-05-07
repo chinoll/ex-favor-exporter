@@ -9,7 +9,6 @@ import json
 import time
 # 这里配置你的cookies
 # 有啥填啥，必填 {"ipb_member_id":"xxx","ipb_pass_hash":"xxx"}
-cookies={"ipb_member_id":"xxx","ipb_pass_hash":"xxx"}
 
 desDir=".\\ex-favor\\"
 if not os.path.exists(desDir):
@@ -60,7 +59,7 @@ def saveImage(imgUrl,imgName):
     except IOError:
         print("IO Error: "+imgUrl)
         return
-jsondata = []
+jsondata = {}
 def getfavor(curUrl):
     fakeua={}
     fakeua['user-agent']=random.choice(USER_AGENTS)
@@ -96,22 +95,22 @@ def getfavor(curUrl):
             name = []
             linklist = []
             time.sleep(1)
-        try:
-            imgName=i[0].div.img.attrs['title']
-            try:
-                imgUrl=i[0].div.img.attrs['data-src']
-                saveImage(imgUrl,imgName)
-            except KeyError:
-                imgUrl=i[0].div.img.attrs['src']
-                saveImage(imgUrl,imgName)
-        except:
-            print("封面下载错误")
+        # try:
+        #     imgName=i[0].div.img.attrs['title']
+        #     try:
+        #         imgUrl=i[0].div.img.attrs['data-src']
+        #         saveImage(imgUrl,imgName)
+        #     except KeyError:
+        #         imgUrl=i[0].div.img.attrs['src']
+        #         saveImage(imgUrl,imgName)
+        # except:
+        #     print("封面下载错误")
 
         print(Name,Link)
 
 fakeua={}
 fakeua['user-agent']=random.choice(USER_AGENTS)
-cookies = {"ipb_member_id":int(os.environ["ipb_member_id"]),"ipb_pass_hash":os.environ["ipb_pass_hash"]}
+#cookies = {"ipb_member_id":os.environ["ipb_member_id"],"ipb_pass_hash":os.environ["ipb_pass_hash"]}
 try:
     sp=bs(rq.get('https://e-hentai.org/favorites.php',cookies=cookies,headers=fakeua).text,'html.parser')
 except AttributeError:
@@ -120,7 +119,7 @@ except AttributeError:
 # 以下逻辑仅为获取收藏数，如果发现获取失败，但确认cookies配置正确，可以手动删掉以下逻辑，配置 pagenum=[你的收藏数]
 favornum=int((sp.find(attrs={'name':'favform'}).p.string.split(' ')[1]).replace(',','').replace(' ',''))
 #favornum=1697
-#pagenum=favornum//50+1
+pagenum=favornum//50+1
 
 urlList=['https://e-hentai.org/favorites.php']
 for i in range(1,pagenum):
@@ -136,17 +135,18 @@ for i in range(1,pagenum):
 #     count = 0
 
 #加载上次退出的地方
-if os.path.exists("list.json"):
-    with open("list.json","r",encoding="utf-8") as f:
-        try:
-            jsondata = json.loads(f.read())
-        except:
-            jsondata = []
-else:
-    jsondata = []
+# if os.path.exists("list.json"):
+#     with open("list.json","r",encoding="utf-8") as f:
+#         try:
+#             jsondata = json.loads(f.read())
+#         except:
+#             jsondata = []
+# else:
+#     jsondata = []
 
 try:
-    for url in urlList[count:]:
+    count = 0
+    for url in urlList:
         print("==========正在下载%d页==========" % (count))
         getfavor(url)
         count += 1
