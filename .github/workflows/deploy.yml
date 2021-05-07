@@ -32,14 +32,9 @@ jobs:
           ref: ${{ env.DEPLOY_BRANCH }}
           path: .deploy_git
 
-      - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node_version }}
-
       - name: Configuration environment
         env:
-          HEXO_DEPLOY_PRI: ${{secrets.HEXO_DEPLOY_PRI}}
+          KEY: ${{secrets.KEY}}
         run: |
           export TZ='Asia/Shanghai'
           sudo timedatectl set-timezone "Asia/Shanghai"
