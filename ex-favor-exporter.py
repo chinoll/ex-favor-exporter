@@ -111,28 +111,29 @@ def getfavor(curUrl):
 
 fakeua={}
 fakeua['user-agent']=random.choice(USER_AGENTS)
+cookies = {"ipb_member_id":int(os.environ["ipb_member_id"]),"ipb_pass_hash":os.environ["ipb_pass_hash"]}
 try:
     sp=bs(rq.get('https://e-hentai.org/favorites.php',cookies=cookies,headers=fakeua).text,'html.parser')
 except AttributeError:
     print("请检查cookie是否配置正确、ip是否被ban")
 
 # 以下逻辑仅为获取收藏数，如果发现获取失败，但确认cookies配置正确，可以手动删掉以下逻辑，配置 pagenum=[你的收藏数]
-#favornum=int((sp.find(attrs={'name':'favform'}).p.string.split(' ')[1]).replace(',','').replace(' ',''))
-favornum=1643
-pagenum=favornum//50+1
+favornum=int((sp.find(attrs={'name':'favform'}).p.string.split(' ')[1]).replace(',','').replace(' ',''))
+#favornum=1697
+#pagenum=favornum//50+1
 
 urlList=['https://e-hentai.org/favorites.php']
 for i in range(1,pagenum):
     urlList.append('https://e-hentai.org/favorites.php?page='+str(i))
 
 #加载配置
-if os.path.exists("settings.json"):
-    with open("settings.json","r",encoding="utf-8") as f:
-        settings = json.loads(f.read())
-        count = settings[0]
-        cookies = settings[1]
-else:
-    count = 0
+# if os.path.exists("settings.json"):
+#     with open("settings.json","r",encoding="utf-8") as f:
+#         settings = json.loads(f.read())
+#         count = settings[0]
+#         cookies = settings[1]
+# else:
+#     count = 0
 
 #加载上次退出的地方
 if os.path.exists("list.json"):
