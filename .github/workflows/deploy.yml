@@ -42,7 +42,6 @@ jobs:
           mkdir -p ~/.ssh/
           echo "$KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
           git config --global user.name $GIT_USER
           git config --global user.email $GIT_EMAIL
           pip install bs4
@@ -53,6 +52,7 @@ jobs:
         run: |
           python ex-favor-exporter.py
           python tag_make.py
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
           git clone https://github.com/hentaiqq/hentai
           cp list.json dict.json tags.json hentai
           cd hentai && git add list.json dict.json tags.json && git commit -m "update" && git push origin master --force
