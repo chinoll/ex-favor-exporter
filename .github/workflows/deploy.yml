@@ -55,4 +55,4 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           ssh -T git@github.com
           cp list.json dict.json tags.json hentai
-          cd hentai && git add list.json dict.json tags.json && git commit -m "update" && git push origin master --force
+          cd hentai && git remote set-url origin git@github.com:hentaiqq/hentai.git && git add list.json dict.json tags.json && git commit -m "update" && git push origin master --force
