@@ -34,6 +34,8 @@ jobs:
       - name: Configuration environment
         env:
           KEY: ${{secrets.KEY}}
+          ipb_member_id: ${{secrets.ipb_member_id}}
+          ipb_pass_hash: ${{secrets.ipb_pass_hash}}
         run: |
           export TZ='Asia/Shanghai'
           sudo timedatectl set-timezone "Asia/Shanghai"
