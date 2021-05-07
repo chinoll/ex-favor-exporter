@@ -45,7 +45,6 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           git config --global user.name $GIT_USER
           git config --global user.email $GIT_EMAIL
-          git clone https://github.com/hentaiqq/hentai
           pip install bs4
       - name: update database
         env:
@@ -54,4 +53,5 @@ jobs:
         run: |
           python ex-favor-exporter.py
           python tag_make.py
+          git clone https://github.com/hentaiqq/hentai
           cd hentai && git add ../list.json ../dict.json ../tags.json && git commit -m "update" && git push origin master --force
