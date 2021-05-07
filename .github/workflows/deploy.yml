@@ -54,4 +54,5 @@ jobs:
           python ex-favor-exporter.py
           python tag_make.py
           git clone https://github.com/hentaiqq/hentai
-          cd hentai && git add ../list.json ../dict.json ../tags.json && git commit -m "update" && git push origin master --force
+          cp list.json dict.json tags.json hentai/
+          cd hentai && git add list.json dict.json tags.json && git commit -m "update" && git push origin master --force
